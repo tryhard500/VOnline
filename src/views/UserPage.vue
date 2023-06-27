@@ -5,11 +5,15 @@ import dayjs from 'dayjs';
 export default {
     data() {
         return {
+
+            // Данные загружены?
             isReady: false,
 
+            // Данные с сервера
             user: null,
             posts: [],
 
+            // Новый пост
             postContent: ''
         }
     },
@@ -17,7 +21,6 @@ export default {
     mounted() {
         this.loadData();
     },
-
     watch: {
         $route() {
             this.loadData();
@@ -27,8 +30,47 @@ export default {
     methods: {
         async loadData() {
             this.isReady = false;
+            await this.loadUser();
+            await this.loadPosts();
             this.isReady = true;
         },
+
+        async loadUser() {
+            let response;
+            if (this.$route.name == 'profile') {
+                response = await axios.get('/profile');
+            } else {
+                response = await axios.get('/user', {
+                    params: {
+                        username: this.$route.params.username
+                    }
+                });
+            }
+            this.user = response.data;
+        },
+
+        async loadPosts() {
+            let response = await axios.get('/user/posts', {
+                params: {
+                    id: this.user._id
+                }
+            });
+            this.posts = response.data;
+        },
+
+        async createPost(evt) {
+            evt.preventDefault();
+            await axios.post('/post/create', {
+                content: this.postContent
+            });
+            this.postContent = '';
+            this.loadPosts();
+        },
+
+        getRelativeDate(date) {
+            let day = dayjs(date);
+            return day.fromNow();
+        }
     }
 }
 </script>
@@ -50,26 +92,18 @@ export default {
                 <div class="container mb-3">
                     <div class="row g-3">
                         <div class="col-md-4 p-0 card info">
-                            <img :src="'src/assets/avatar.jpg'" class="card img-fluid rounded-start">
+                            <img :src="'/src/avatars/' + user.avatar" class="img-fluid rounded-start">
                         </div>
                         <div class="col-md-8">
                             <div class="card info p-3">
                                 <h5 class="card-title">
-                                    Никита Басков
+                                    {{ user.firstName }} {{ user.lastName }}
                                 </h5>
-                                <p class="card-text text-muted">Lorem ipsum dolor sit amet consectetur.</p>
-                                <hr class="m-0">
-                                <p class="card-text m-0 mt-3">
-                                    <span class="text-muted">Пол:</span>
-                                    Мужской
-                                </p>
-                                <p class="card-text m-0">
-                                    <span class="text-muted">Дата рождения:</span>
-                                    23 июля 2023
-                                </p>
+                                <p class="card-text text-muted">{{ user.info }}</p>
+                                <hr>
                                 <p class="card-text m-0">
                                     <span class="text-muted">Телефон:</span>
-                                    88005553535
+                                    {{ user.phone }}
                                 </p>
                             </div>
                         </div>
@@ -89,15 +123,13 @@ export default {
                 </form>
 
                 <!-- Посты -->
-                <div class="user-post card mb-3">
+                <div v-for="(item, index) in posts" class="user-post card mb-3">
                     <div class="card-body">
                         <div class="user-post-time">
-                            2 дня назад
+                            {{ getRelativeDate(item.createdAt) }}
                         </div>
                         <p class="card-text">
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. A, voluptas? Voluptas porro praesentium
-                            dignissimos ab quam ducimus adipisci modi dicta exercitationem similique, et, repudiandae
-                            distinctio ipsum minus at numquam sunt?
+                            {{ item.content }}
                         </p>
                     </div>
                 </div>
@@ -180,4 +212,5 @@ export default {
     100% {
         transform: rotate(360deg);
     }
-}</style>
+}
+</style>
