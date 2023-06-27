@@ -75,9 +75,8 @@ app.get('/users', async function (req, res) {
 });
 
 app.get('/feed', async function (req, res) {
-    let posts = await Post.find({author: {$ne: CURRENT_USER}})
+    let posts = await Post.find()
                             .sort({createdAt: -1})
-                            .limit(5)
                             .populate('author')
     res.send(posts);
 });
