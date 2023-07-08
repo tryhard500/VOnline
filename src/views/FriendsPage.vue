@@ -12,7 +12,7 @@ export default {
     },
     methods: {
         async loadFriends() {
-            let response = await axios('/users');
+            let response = await axios.get('/users');
             this.friends = response.data;
         },
         goUser(user) {
@@ -30,7 +30,6 @@ export default {
 
 <template>
     <div class="friends-page">
-        <h3>Друзья</h3>
 
         <ul class="list-group">
             <li
@@ -51,7 +50,6 @@ export default {
 <style>
 .friends-page {
     width: 80%;
-    text-align: center;
 }
 
 .friends-page img {

@@ -1,14 +1,8 @@
 <script>
-export default {
-
-}
 </script>
 
 <template>
-    Месенджер
+    Мессенджер
 </template>
 
-
-<style>
-
-</style>
+<style></style>

@@ -34,6 +34,11 @@ export default createRouter({
             path: '/friends',
             name: 'friends',
             component: FriendsPage
+        },
+        {
+            path: '/user/:username',
+            name: 'user',
+            component: UserPage
         }
     ]
 })
